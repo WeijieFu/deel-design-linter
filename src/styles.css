@@ -121,5 +121,20 @@
     font-size: 0.75rem;
 }
 
-
-
+.home-buttons{
+    display: flex;
+    gap: 0.5rem;
+}
+.icon-button{
+    padding: 0.1rem;
+    border-radius: 100%;
+}
+.icon-button:hover{
+    cursor: pointer;
+    background-color: var(--figma-color-bg-brand);
+    color: #fff;
+}
+.setting-modal{
+    width: 280px;
+    padding: 1rem;
+}

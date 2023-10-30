@@ -9,6 +9,9 @@ FilterLabels = {
   Must_Use_Spacing_Tokens: "Spacing",
   Must_Use_Autolayout: "Autolayout",
   Should_Avoid: "Avoid",
+  Must_Use_Fill_Variable: "Fill",
+  Must_Use_Stroke_Variable: "Stroke",
+  Must_Use_Radius_Variable: "Radius",
 }
 export const Filter = ({ filter, setFilter, result }) => {
   return (

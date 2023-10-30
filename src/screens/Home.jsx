@@ -1,8 +1,62 @@
-import { Button, Stack, Text, VerticalSpace } from "@create-figma-plugin/ui"
+import {
+  Button,
+  Checkbox,
+  IconAdjust32,
+  Modal,
+  Stack,
+  Text,
+  VerticalSpace,
+} from "@create-figma-plugin/ui"
 import styles from "../styles.css"
 import { h } from "preact"
+import { useState } from "preact/hooks"
+import { emit } from "@create-figma-plugin/utilities"
 
-export const Home = ({ handleStartClick }) => {
+export const Home = ({ handleStartClick, options }) => {
+  const [isSettingOpen, setIsSettingOpen] = useState(false)
+  const [criteria, setCriteria] = useState(options)
+
+  const handleCheck = (type) => {
+    const arr = Object.values(criteria)
+    if (type === "all") {
+      if (arr.every((val) => val === arr[0])) {
+        setCriteria({
+          avoid: !arr[0],
+          named_frames: !arr[0],
+          auto_layout: !arr[0],
+          padding: !arr[0],
+          gap: !arr[0],
+          fill: !arr[0],
+          stroke: !arr[0],
+          corner_radius: !arr[0],
+        })
+      } else {
+        setCriteria({
+          avoid: true,
+          named_frames: true,
+          auto_layout: true,
+          padding: true,
+          gap: true,
+          fill: true,
+          stroke: true,
+          corner_radius: true,
+        })
+      }
+      return
+    }
+    setCriteria({ ...criteria, [type]: !criteria[type] })
+  }
+  const handleSettingClick = () => {
+    setIsSettingOpen(true)
+  }
+  const handleCloseButtonClick = () => {
+    setIsSettingOpen(false)
+  }
+
+  const handleSave = () => {
+    setIsSettingOpen(false)
+    emit("SAVE", criteria)
+  }
   return (
     <div className={styles["home"]}>
       <div className={styles["home-wrapper"]}>
@@ -13,13 +67,122 @@ export const Home = ({ handleStartClick }) => {
         <div className={styles["home-description"]}>
           Select a layer to get started
         </div>
-        <Button
-          fullWidth
-          onClick={handleStartClick}
-        >
-          Run Linter
-        </Button>
+        <div className={styles["home-buttons"]}>
+          <Button
+            fullWidth
+            onClick={handleStartClick}
+          >
+            Run Linter
+          </Button>
+          <div
+            className={styles["icon-button"]}
+            onClick={handleSettingClick}
+          >
+            <IconAdjust32 />
+          </div>
+        </div>
       </div>
+      <Modal
+        open={isSettingOpen}
+        title={"Select criteria to lint with:"}
+        onCloseButtonClick={handleCloseButtonClick}
+      >
+        <div className={styles["setting-modal"]}>
+          <Stack space='large'>
+            <Checkbox
+              value={
+                Object.values(criteria).every(
+                  (val) => val === criteria.avoid
+                ) && criteria.avoid
+              }
+              onChange={() => {
+                handleCheck("all")
+              }}
+            >
+              <Text>All</Text>
+            </Checkbox>
+            <Stack space='small'>
+              <Text>Avoid using:</Text>
+              <Checkbox
+                value={criteria.avoid}
+                onChange={() => {
+                  handleCheck("avoid")
+                }}
+              >
+                <Text>Group and Boolean Operation</Text>
+              </Checkbox>
+            </Stack>
+            <Stack space='small'>
+              <Text>Must use:</Text>
+              <Checkbox
+                value={criteria.named_frames}
+                onChange={() => {
+                  handleCheck("named_frames")
+                }}
+              >
+                <Text>Named frames</Text>
+              </Checkbox>
+              <Checkbox
+                value={criteria.auto_layout}
+                onChange={() => {
+                  handleCheck("auto_layout")
+                }}
+              >
+                <Text>Auto layout</Text>
+              </Checkbox>
+            </Stack>
+            <Stack space='small'>
+              <Text>Must apply variables to:</Text>
+              <Checkbox
+                value={criteria.padding}
+                onChange={() => {
+                  handleCheck("padding")
+                }}
+              >
+                <Text>Padding</Text>
+              </Checkbox>
+              <Checkbox
+                value={criteria.gap}
+                onChange={() => {
+                  handleCheck("gap")
+                }}
+              >
+                <Text>Gap</Text>
+              </Checkbox>
+              <Checkbox
+                value={criteria.fill}
+                onChange={() => {
+                  handleCheck("fill")
+                }}
+              >
+                <Text>Fill</Text>
+              </Checkbox>
+              <Checkbox
+                value={criteria.stroke}
+                onChange={() => {
+                  handleCheck("stroke")
+                }}
+              >
+                <Text>Stroke</Text>
+              </Checkbox>
+              <Checkbox
+                value={criteria.corner_radius}
+                onChange={() => {
+                  handleCheck("corner_radius")
+                }}
+              >
+                <Text>Corner Radius</Text>
+              </Checkbox>
+            </Stack>
+            <Button
+              fullWidth
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </Stack>
+        </div>
+      </Modal>
     </div>
   )
 }

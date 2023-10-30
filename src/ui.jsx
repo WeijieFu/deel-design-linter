@@ -20,15 +20,18 @@ function Plugin(data) {
   const handleStartClick = () => {
     emit("START")
   }
-  const result = useRef(data)
+  const result = useRef(data.result)
 
-  useEffect(() => {
-    console.log(result.current)
-  }, [result.current])
+  // useEffect(() => {
+  //   console.log(result.current)
+  // }, [result.current])
   return (
     <div className={styles["container"]}>
       {Object.keys(result.current).length === 0 && (
-        <Home handleStartClick={handleStartClick} />
+        <Home
+          handleStartClick={handleStartClick}
+          options={data.options}
+        />
       )}
       {Object.keys(result.current).length > 0 && (
         <Result result={result.current} />
