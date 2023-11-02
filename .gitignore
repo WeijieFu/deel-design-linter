@@ -1,5 +1,4 @@
 .DS_Store
 *.log
 *.css.d.ts
-/manifest.json
 node_modules/

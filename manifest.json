@@ -1,0 +1,10 @@
+{
+  "api": "1.0.0",
+  "editorType": [
+    "figma"
+  ],
+  "id": "deel-design-linter",
+  "name": "Deel Design Linter",
+  "main": "build/main.js",
+  "ui": "build/ui.js"
+}
