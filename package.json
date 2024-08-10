@@ -18,9 +18,14 @@
     "editorType": [
       "figma"
     ],
-    "id": "deel-design-linter",
+    "id": "1316097170139355275",
     "name": "Deel Design Linter",
     "main": "src/main.js",
-    "ui": "src/ui.jsx"
+    "ui": "src/ui.jsx",
+    "networkAccess": {
+      "allowedDomains": [
+        "none"
+      ]
+    }
   }
 }

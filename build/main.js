@@ -134,7 +134,7 @@ var init_lib = __esm({
 });
 
 // src/data.js
-var LINTTYPES, CRITERIA;
+var LINTTYPES, CRITERIA, IGNORE;
 var init_data = __esm({
   "src/data.js"() {
     LINTTYPES = [
@@ -151,6 +151,24 @@ var init_data = __esm({
       Must_Be_Named: ["COMPONENT", "COMPONENT_SET", "FRAME", "INSTANCE"],
       Must_Use_Autolayout: ["COMPONENT", "FRAME", "INSTANCE"],
       Must_Use_Variable: ["COMPONENT", "FRAME", "INSTANCE"]
+    };
+    IGNORE = {
+      Layer: [
+        "Scroll Bar / Vertical",
+        "Scroll Bar / Horizontal",
+        "\u{1F39A} Width Control",
+        "Vector",
+        "Avatar"
+      ],
+      Property: {
+        fillType: [
+          "GRADIENT_LINEAR",
+          "GRADIENT_RADIAL",
+          "GRADIENT_ANGULAR",
+          "GRADIENT_DIAMOND",
+          "Image"
+        ]
+      }
     };
   }
 });
@@ -211,9 +229,16 @@ var init_main = __esm({
       const options = await figma.clientStorage.getAsync("options");
       const selectionArr = figma.currentPage.selection;
       if (selectionArr) {
+        const notIgnoreComponents = (node) => {
+          let shouldNotIgnore = true;
+          IGNORE.Layer.forEach((name) => {
+            shouldNotIgnore = shouldNotIgnore && !node.name.includes(name);
+          });
+          return shouldNotIgnore;
+        };
         selectionArr.map((selection) => {
           traverseNode(selection, (node) => {
-            if (LINTTYPES.includes(node.type)) {
+            if (LINTTYPES.includes(node.type) && notIgnoreComponents(node)) {
               lint(node, result, options);
             }
           });
@@ -283,7 +308,14 @@ var init_main = __esm({
         }
       }
       if (CRITERIA["Must_Use_Variable"].includes(node.type)) {
-        if (node.fills.length > 0 && (node.boundVariables.fills === void 0 || node.boundVariables.fills.length < node.fills.length) && options.fill) {
+        const isSolidFill = (node2) => {
+          let bool = true;
+          node2.fills.forEach((fill) => {
+            bool = bool && fill.type === "SOLID";
+          });
+          return bool;
+        };
+        if (node.fills.length > 0 && (node.boundVariables.fills === void 0 || node.boundVariables.fills.length < node.fills.length) && isSolidFill(node) && options.fill) {
           result["Must_Use_Fill_Variable"].push({
             type: "Must Use Fill Variable",
             node: { id: node.id, name: node.name, type: node.type },

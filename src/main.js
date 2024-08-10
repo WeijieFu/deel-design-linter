@@ -1,6 +1,6 @@
 import { on, showUI, traverseNode } from "@create-figma-plugin/utilities"
 
-import { LINTTYPES, CRITERIA } from "./data"
+import { LINTTYPES, CRITERIA, IGNORE } from "./data"
 
 const initialOptions = {
   avoid: true,
@@ -53,9 +53,18 @@ const handleStart = async () => {
   const selectionArr = figma.currentPage.selection
 
   if (selectionArr) {
+    const notIgnoreComponents = (node) => {
+      let shouldNotIgnore = true
+
+      IGNORE.Layer.forEach((name) => {
+        shouldNotIgnore = shouldNotIgnore && !node.name.includes(name)
+      })
+      return shouldNotIgnore
+    }
+
     selectionArr.map((selection) => {
       traverseNode(selection, (node) => {
-        if (LINTTYPES.includes(node.type)) {
+        if (LINTTYPES.includes(node.type) && notIgnoreComponents(node)) {
           lint(node, result, options)
         }
       })
@@ -145,11 +154,20 @@ const lint = (node, result, options) => {
   }
   //must use variables
   if (CRITERIA["Must_Use_Variable"].includes(node.type)) {
+    const isSolidFill = (node) => {
+      let bool = true
+      node.fills.forEach((fill) => {
+        bool = bool && fill.type === "SOLID"
+      })
+
+      return bool
+    }
     //check fill
     if (
       node.fills.length > 0 &&
       (node.boundVariables.fills === undefined ||
         node.boundVariables.fills.length < node.fills.length) &&
+      isSolidFill(node) &&
       options.fill
     ) {
       result["Must_Use_Fill_Variable"].push({
